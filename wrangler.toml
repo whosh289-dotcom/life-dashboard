@@ -2,3 +2,8 @@ name = "life-dashboard"
 pages_build_output_dir = "dist"
 compatibility_date = "2024-03-20"
 
+
+[[d1_databases]]
+binding = "DB"
+database_name = "life-admin-db"
+database_id = "cec034fe-1bac-47ac-be7b-317412c46c28"
