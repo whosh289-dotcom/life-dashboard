@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { base44 } from '@/api/base44Client';
 import { Upload, Loader2 } from 'lucide-react';
 
 const DOC_TYPES = ['passport', 'drivers_license', 'insurance', 'warranty', 'lease', 'registration', 'medical', 'tax', 'certificate', 'other'];
@@ -19,25 +20,21 @@ export default function DocumentForm({ open, onClose, onSave, initial }) {
     const file = e.target.files[0];
     if (!file) return;
     
-    // Cloudflare D1 has a 1MB row limit. We restrict to ~700KB to be safe with Base64 overhead.
-    if (file.size > 700 * 1024) {
-      setError('File is too large! Must be under 700KB to store in the free database.');
+    // Hard limit database chunking to 5MB to save space
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Please keep files under 5MB to conserve database space.');
       return;
     }
     setError('');
     setUploading(true);
 
-    // Convert file to Base64 string to store directly in the D1 database
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setForm(prev => ({ ...prev, file_url: reader.result }));
-      setUploading(false);
-    };
-    reader.onerror = () => {
-      setError('Failed to read file');
-      setUploading(false);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setForm(prev => ({ ...prev, file_url }));
+    } catch(e) {
+      setError('Upload failed');
+    }
+    setUploading(false);
   };
 
   const handleSave = () => {
@@ -80,7 +77,7 @@ export default function DocumentForm({ open, onClose, onSave, initial }) {
             </div>
           </div>
           <div>
-            <Label>Upload File (Max 700KB)</Label>
+            <Label>Upload File (Max 5MB)</Label>
             <div className="mt-1">
               {form.file_url ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -90,7 +87,7 @@ export default function DocumentForm({ open, onClose, onSave, initial }) {
               ) : (
                 <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-border cursor-pointer hover:bg-muted/50 transition-colors">
                   {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4 text-muted-foreground" />}
-                  <span className="text-sm text-muted-foreground">{uploading ? 'Processing...' : 'Choose file (< 700KB)'}</span>
+                  <span className="text-sm text-muted-foreground">{uploading ? 'Processing...' : 'Choose file (< 5MB)'}</span>
                   <input type="file" className="hidden" onChange={handleFileUpload} disabled={uploading} />
                 </label>
               )}

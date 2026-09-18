@@ -50,3 +50,10 @@ CREATE TABLE contacts (
     created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS document_chunks (
+    file_id TEXT NOT NULL,
+    chunk_index INTEGER NOT NULL,
+    chunk_data TEXT NOT NULL,
+    PRIMARY KEY (file_id, chunk_index)
+);

@@ -54,13 +54,20 @@ export const base44 = {
     integrations: {
         Core: {
             UploadFile: async ({ file }) => {
-                const formData = new FormData();
-                formData.append('file', file);
                 const token = getToken();
-                const res = await fetch('/api/upload', {
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+                const res = await fetch('/api/files', {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ data: base64 })
                 });
                 if (!res.ok) throw new Error('Upload failed');
                 return await res.json();
