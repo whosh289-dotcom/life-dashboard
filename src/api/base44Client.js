@@ -54,8 +54,16 @@ export const base44 = {
     integrations: {
         Core: {
             UploadFile: async ({ file }) => {
-                // Not fully implemented for CF Pages without an R2 bucket
-                return { file_url: URL.createObjectURL(file) };
+                const formData = new FormData();
+                formData.append('file', file);
+                const token = getToken();
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                if (!res.ok) throw new Error('Upload failed');
+                return await res.json();
             }
         }
     },
