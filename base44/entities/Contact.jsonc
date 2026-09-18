@@ -1,0 +1,25 @@
+{
+  "name": "Contact",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "description": "Contact name" },
+    "role": {
+      "type": "string",
+      "enum": ["doctor", "dentist", "lawyer", "accountant", "plumber", "electrician", "mechanic", "insurance_agent", "landlord", "vet", "therapist", "other"],
+      "description": "What they do for you"
+    },
+    "phone": { "type": "string" },
+    "email": { "type": "string" },
+    "address": { "type": "string" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "role"],
+  "rls": {
+    "rules": [
+      {
+        "action": ["create", "read", "update", "delete"],
+        "condition": { "created_by": "{{user.email}}" }
+      }
+    ]
+  }
+}

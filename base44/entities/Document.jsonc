@@ -1,0 +1,31 @@
+{
+  "name": "Document",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "description": "Name of the document" },
+    "type": {
+      "type": "string",
+      "enum": ["passport", "drivers_license", "insurance", "warranty", "lease", "registration", "medical", "tax", "certificate", "other"],
+      "description": "Type of document"
+    },
+    "expiry_date": { "type": "string", "format": "date" },
+    "issue_date": { "type": "string", "format": "date" },
+    "reference_number": { "type": "string" },
+    "file_url": { "type": "string", "description": "Uploaded file" },
+    "notes": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["valid", "expiring_soon", "expired"],
+      "default": "valid"
+    }
+  },
+  "required": ["name", "type"],
+  "rls": {
+    "rules": [
+      {
+        "action": ["create", "read", "update", "delete"],
+        "condition": { "created_by": "{{user.email}}" }
+      }
+    ]
+  }
+}
