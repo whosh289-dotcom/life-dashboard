@@ -21,9 +21,3 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
     </div>
   );
 }
-``# Life Admin — Full Source (5/5: Pages & Entities)
-
----
-
-## File: `src/pages/Dashboard.jsx`
-
