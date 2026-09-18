@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { base44 } from '@/api/base44Client';
 import { Upload, Loader2 } from 'lucide-react';
 
 const DOC_TYPES = ['passport', 'drivers_license', 'insurance', 'warranty', 'lease', 'registration', 'medical', 'tax', 'certificate', 'other'];
@@ -14,14 +13,31 @@ export default function DocumentForm({ open, onClose, onSave, initial }) {
     name: '', type: 'other', expiry_date: '', issue_date: '', reference_number: '', file_url: '', notes: ''
   });
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    
+    // Cloudflare D1 has a 1MB row limit. We restrict to ~700KB to be safe with Base64 overhead.
+    if (file.size > 700 * 1024) {
+      setError('File is too large! Must be under 700KB to store in the free database.');
+      return;
+    }
+    setError('');
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setForm(prev => ({ ...prev, file_url }));
-    setUploading(false);
+
+    // Convert file to Base64 string to store directly in the D1 database
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm(prev => ({ ...prev, file_url: reader.result }));
+      setUploading(false);
+    };
+    reader.onerror = () => {
+      setError('Failed to read file');
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSave = () => {
@@ -36,25 +52,21 @@ export default function DocumentForm({ open, onClose, onSave, initial }) {
           <DialogTitle className="font-display text-xl">{initial ? 'Edit' : 'Add'} Document</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 mt-2">
-          <div>
-            <Label>Document Name</Label>
-            <Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="My Passport" className="mt-1 rounded-xl" />
-          </div>
           <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Name</Label>
+              <Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Passport" className="mt-1 rounded-xl" />
+            </div>
             <div>
               <Label>Type</Label>
               <Select value={form.type} onValueChange={v => setForm({...form, type: v})}>
                 <SelectTrigger className="mt-1 rounded-xl"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {DOC_TYPES.map(t => (
-                    <SelectItem key={t} value={t}>{t.replace(/_/g, ' ')}</SelectItem>
+                    <SelectItem key={t} value={t}>{t.replace('_', ' ')}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div>
-              <Label>Reference #</Label>
-              <Input value={form.reference_number} onChange={e => setForm({...form, reference_number: e.target.value})} placeholder="ABC123" className="mt-1 rounded-xl" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -68,25 +80,26 @@ export default function DocumentForm({ open, onClose, onSave, initial }) {
             </div>
           </div>
           <div>
-            <Label>Upload File</Label>
+            <Label>Upload File (Max 700KB)</Label>
             <div className="mt-1">
               {form.file_url ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="truncate flex-1">File uploaded</span>
+                  <span className="truncate flex-1">File attached</span>
                   <Button variant="ghost" size="sm" onClick={() => setForm({...form, file_url: ''})}>Remove</Button>
                 </div>
               ) : (
                 <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-border cursor-pointer hover:bg-muted/50 transition-colors">
                   {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4 text-muted-foreground" />}
-                  <span className="text-sm text-muted-foreground">{uploading ? 'Uploading...' : 'Choose file'}</span>
+                  <span className="text-sm text-muted-foreground">{uploading ? 'Processing...' : 'Choose file (< 700KB)'}</span>
                   <input type="file" className="hidden" onChange={handleFileUpload} disabled={uploading} />
                 </label>
               )}
             </div>
+            {error && <p className="text-sm text-destructive mt-1">{error}</p>}
           </div>
           <div>
             <Label>Notes</Label>
-            <Input value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Renewal reminder..." className="mt-1 rounded-xl" />
+            <Input value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Location..." className="mt-1 rounded-xl" />
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="outline" onClick={onClose} className="rounded-xl">Cancel</Button>
