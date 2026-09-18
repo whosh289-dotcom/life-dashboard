@@ -21,10 +21,11 @@ export default function DocumentCard({ document: doc, onEdit, onDelete, index })
 
   return (
     <motion.div
+      onClick={() => doc.file_url && window.open(doc.file_url, '_blank')}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
-      className={`bg-card rounded-2xl border p-5 hover:shadow-md transition-all duration-300 ${
+      className={`bg-card rounded-2xl border p-5 hover:shadow-md transition-all duration-300 ${doc.file_url ? 'cursor-pointer hover:border-primary/50' : ''} ${
         isExpired ? 'border-destructive/30' : isExpiringSoon ? 'border-accent/30' : 'border-border/50'
       }`}
     >
@@ -40,7 +41,7 @@ export default function DocumentCard({ document: doc, onEdit, onDelete, index })
         </div>
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
               <MoreHorizontal className="w-4 h-4" />
             </Button>
