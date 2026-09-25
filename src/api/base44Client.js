@@ -1,7 +1,7 @@
-export const getToken = async () => window.Clerk?.session ? await window.Clerk.session.getToken() : null;
+let tokenGetter = async () => null;
 
 async function apiFetch(url, options = {}) {
-    const token = await getToken();
+    const token = await tokenGetter();
     const headers = {
         'Content-Type': 'application/json',
         ...options.headers,
@@ -10,9 +10,6 @@ async function apiFetch(url, options = {}) {
 
     const response = await fetch(url, { ...options, headers });
     if (!response.ok) {
-        if (response.status === 401) {
-            // Let Clerk handle unauthenticated redirects or just reload
-        }
         throw new Error(await response.text());
     }
     return response.json();
@@ -26,10 +23,13 @@ const createEntityApi = (name) => ({
 });
 
 export const base44 = {
+    setTokenGetter: (getter) => {
+        tokenGetter = getter;
+    },
     integrations: {
         Core: {
             UploadFile: async ({ file }) => {
-                const token = await getToken();
+                const token = await tokenGetter();
                 const base64 = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = () => resolve(reader.result);

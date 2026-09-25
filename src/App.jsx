@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ClerkProvider, SignedIn, SignedOut, SignIn } from '@clerk/clerk-react';
 
 import AppLayout from './components/layout/AppLayout';
+import TokenProvider from './components/layout/TokenProvider';
 import Dashboard from './pages/Dashboard';
 import Subscriptions from './pages/Subscriptions';
 import Documents from './pages/Documents';
@@ -41,7 +42,9 @@ export default function App() {
             <Route element={
               <>
                 <SignedIn>
-                  <AppLayout />
+                  <TokenProvider>
+                    <AppLayout />
+                  </TokenProvider>
                 </SignedIn>
                 <SignedOut>
                   <Navigate to="/login" replace />
