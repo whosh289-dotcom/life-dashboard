@@ -28,7 +28,7 @@ export default function SubscriptionForm({ open, onClose, onSave, initial }) {
             <Label>Service Name</Label>
             <Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Netflix, Spotify..." className="mt-1 rounded-xl" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Cost</Label>
               <Input type="number" step="0.01" value={form.cost} onChange={e => setForm({...form, cost: e.target.value})} placeholder="9.99" className="mt-1 rounded-xl" />
@@ -45,7 +45,7 @@ export default function SubscriptionForm({ open, onClose, onSave, initial }) {
               </Select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Category</Label>
               <Select value={form.category} onValueChange={v => setForm({...form, category: v})}>

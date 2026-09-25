@@ -25,7 +25,7 @@ export default function GuestLanding({ onContinueAsGuest }) {
         <h1 className="font-display text-3xl font-semibold tracking-tight mb-2">Life Admin</h1>
         <p className="text-muted-foreground mb-10">Your personal command centre for life's important stuff.</p>
 
-        <div className="grid grid-cols-2 gap-3 mb-10 text-left">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10 text-left">
           {features.map(({ icon: Icon, label, desc }) => (
             <div key={label} className="bg-card border border-border/50 rounded-2xl p-4">
               <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center mb-3">

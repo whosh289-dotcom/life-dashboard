@@ -24,7 +24,7 @@ export default function ContactForm({ open, onClose, onSave, initial }) {
           <DialogTitle className="font-display text-xl">{initial ? 'Edit' : 'Add'} Contact</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 mt-2">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Name</Label>
               <Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Dr. Smith" className="mt-1 rounded-xl" />
@@ -41,7 +41,7 @@ export default function ContactForm({ open, onClose, onSave, initial }) {
               </Select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Phone</Label>
               <Input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="+1 555-0123" className="mt-1 rounded-xl" />

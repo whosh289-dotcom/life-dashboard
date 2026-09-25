@@ -49,7 +49,7 @@ export default function DocumentForm({ open, onClose, onSave, initial }) {
           <DialogTitle className="font-display text-xl">{initial ? 'Edit' : 'Add'} Document</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 mt-2">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Name</Label>
               <Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Passport" className="mt-1 rounded-xl" />
@@ -66,7 +66,7 @@ export default function DocumentForm({ open, onClose, onSave, initial }) {
               </Select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Issue Date</Label>
               <Input type="date" value={form.issue_date} onChange={e => setForm({...form, issue_date: e.target.value})} className="mt-1 rounded-xl" />
