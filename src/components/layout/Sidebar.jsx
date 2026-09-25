@@ -2,11 +2,11 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, CreditCard, FileText, Users, Menu, X, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { base44 } from '@/api/base44Client';
+import { UserButton, SignOutButton } from '@clerk/clerk-react';
 import CurrencyPicker from './CurrencyPicker';
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
   { path: '/documents', label: 'Documents', icon: FileText },
   { path: '/contacts', label: 'Contacts', icon: Users },
@@ -38,11 +38,14 @@ export default function Sidebar({ isOpen, onToggle }) {
         lg:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="p-6 pb-2">
-          <h1 className="font-display text-2xl font-semibold tracking-tight">
-            Life<span className="text-sidebar-primary">Admin</span>
-          </h1>
-          <p className="text-xs text-sidebar-foreground/50 mt-1">Your personal command center</p>
+        <div className="p-6 pb-2 flex items-center justify-between">
+          <div>
+            <h1 className="font-display text-2xl font-semibold tracking-tight">
+              Life<span className="text-sidebar-primary">Admin</span>
+            </h1>
+            <p className="text-xs text-sidebar-foreground/50 mt-1">Your personal command center</p>
+          </div>
+          <UserButton afterSignOutUrl="/" />
         </div>
 
         <nav className="flex-1 px-3 py-6 space-y-1">
@@ -71,13 +74,12 @@ export default function Sidebar({ isOpen, onToggle }) {
 
         <CurrencyPicker />
         <div className="p-4 border-t border-sidebar-border">
-          <button
-            onClick={() => base44.auth.logout('/')}
-            className="flex items-center gap-3 px-4 py-2 text-sm text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors w-full"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign out
-          </button>
+          <SignOutButton signOutCallback={() => window.location.href = "/"}>
+            <button className="flex items-center gap-3 px-4 py-2 text-sm text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors w-full">
+              <LogOut className="w-4 h-4" />
+              Sign out
+            </button>
+          </SignOutButton>
         </div>
       </aside>
     </>

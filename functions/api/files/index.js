@@ -2,7 +2,7 @@ import { verify } from '../../utils/jwt';
 
 export async function onRequestPost(context) {
     const { request, env } = context;
-    const user = await verify(request.headers.get('Authorization')?.replace('Bearer ', ''), env.JWT_SECRET);
+    const user = await verify(request.headers.get('Authorization')?.replace('Bearer ', ''), env.CLERK_SECRET_KEY);
     if (!user) return new Response('Unauthorized', { status: 401 });
 
     const { data } = await request.json();

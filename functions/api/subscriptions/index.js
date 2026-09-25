@@ -2,7 +2,7 @@ import { verify } from '../../utils/jwt';
 
 export async function onRequestGet(context) {
     const { request, env } = context;
-    const user = await verify(request.headers.get('Authorization')?.replace('Bearer ', ''), env.JWT_SECRET);
+    const user = await verify(request.headers.get('Authorization')?.replace('Bearer ', ''), env.CLERK_SECRET_KEY);
     if (!user) return new Response('Unauthorized', { status: 401 });
 
     const { results } = await env.DB.prepare('SELECT * FROM subscriptions WHERE user_id = ? ORDER BY created_date DESC').bind(user.id).all();
@@ -11,7 +11,7 @@ export async function onRequestGet(context) {
 
 export async function onRequestPost(context) {
     const { request, env } = context;
-    const user = await verify(request.headers.get('Authorization')?.replace('Bearer ', ''), env.JWT_SECRET);
+    const user = await verify(request.headers.get('Authorization')?.replace('Bearer ', ''), env.CLERK_SECRET_KEY);
     if (!user) return new Response('Unauthorized', { status: 401 });
 
     const data = await request.json();

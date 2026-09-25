@@ -1,7 +1,7 @@
-export const getToken = () => localStorage.getItem('auth_token');
+export const getToken = async () => window.Clerk?.session ? await window.Clerk.session.getToken() : null;
 
 async function apiFetch(url, options = {}) {
-    const token = getToken();
+    const token = await getToken();
     const headers = {
         'Content-Type': 'application/json',
         ...options.headers,
@@ -11,8 +11,7 @@ async function apiFetch(url, options = {}) {
     const response = await fetch(url, { ...options, headers });
     if (!response.ok) {
         if (response.status === 401) {
-            localStorage.removeItem('auth_token');
-            window.location.href = '/login';
+            // Let Clerk handle unauthenticated redirects or just reload
         }
         throw new Error(await response.text());
     }
@@ -27,34 +26,10 @@ const createEntityApi = (name) => ({
 });
 
 export const base44 = {
-    auth: {
-        me: () => apiFetch('/api/auth/me'),
-        login: async (email, password) => {
-            const data = await apiFetch('/api/auth/login', {
-                method: 'POST',
-                body: JSON.stringify({ email, password })
-            });
-            localStorage.setItem('auth_token', data.token);
-            return data.user;
-        },
-        register: async (email, password) => {
-            const data = await apiFetch('/api/auth/register', {
-                method: 'POST',
-                body: JSON.stringify({ email, password })
-            });
-            localStorage.setItem('auth_token', data.token);
-            return data.user;
-        },
-        redirectToLogin: () => { window.location.href = '/login'; },
-        logout: () => { 
-            localStorage.removeItem('auth_token');
-            window.location.href = '/login'; 
-        }
-    },
     integrations: {
         Core: {
             UploadFile: async ({ file }) => {
-                const token = getToken();
+                const token = await getToken();
                 const base64 = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = () => resolve(reader.result);

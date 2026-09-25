@@ -2,7 +2,7 @@ import { verify } from '../../utils/jwt';
 
 export async function onRequestPut(context) {
     const { request, env, params } = context;
-    const user = await verify(request.headers.get('Authorization')?.replace('Bearer ', ''), env.JWT_SECRET);
+    const user = await verify(request.headers.get('Authorization')?.replace('Bearer ', ''), env.CLERK_SECRET_KEY);
     if (!user) return new Response('Unauthorized', { status: 401 });
 
     const data = await request.json();
@@ -17,7 +17,7 @@ export async function onRequestPut(context) {
 
 export async function onRequestDelete(context) {
     const { request, env, params } = context;
-    const user = await verify(request.headers.get('Authorization')?.replace('Bearer ', ''), env.JWT_SECRET);
+    const user = await verify(request.headers.get('Authorization')?.replace('Bearer ', ''), env.CLERK_SECRET_KEY);
     if (!user) return new Response('Unauthorized', { status: 401 });
 
     await env.DB.prepare('DELETE FROM documents WHERE id = ? AND user_id = ?').bind(params.id, user.id).run();
