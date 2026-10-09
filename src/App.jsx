@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ClerkProvider, SignedIn, SignedOut, SignIn } from '@clerk/clerk-react';
+import { ClerkProvider, SignedIn, SignedOut, SignIn, ClerkLoading, ClerkLoaded } from '@clerk/clerk-react';
 
 import AppLayout from './components/layout/AppLayout';
 import TokenProvider from './components/layout/TokenProvider';
@@ -19,7 +19,14 @@ export default function App() {
   return (
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+        <ClerkLoading>
+          <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-muted-foreground font-medium animate-pulse">Loading Life Admin...</p>
+          </div>
+        </ClerkLoading>
+        <ClerkLoaded>
+          <BrowserRouter>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={
@@ -61,6 +68,7 @@ export default function App() {
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </BrowserRouter>
+        </ClerkLoaded>
       </QueryClientProvider>
     </ClerkProvider>
   );
